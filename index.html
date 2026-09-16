@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students & Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    h1 { color: #333; margin-bottom: 20px; text-align: center; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: #f0f2f5;
+      padding: 6px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #666;
+      transition: 0.3s;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Add Button */
+    .add-btn {
+      display: inline-block;
+      padding: 10px 18px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .add-btn:hover { background: #5568d3; transform: translateY(-2px); }
+
+    /* Search */
+    #searchBox {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    #searchBox:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    /* Students Grid */
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .student-card {
+      background: #f9fafb;
+      padding: 18px;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      transition: 0.3s;
+    }
+
+    .student-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .student-card h3 { color: #333; margin-bottom: 10px; }
+    .student-card p { color: #666; font-size: 14px; margin: 5px 0; }
+
+    .delete-btn {
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .delete-btn:hover { background: #dc2626; }
+
+    .empty-msg {
+      text-align: center;
+      color: #999;
+      padding: 40px;
+      font-size: 16px;
+    }
+
+    /* Dashboard Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 22px;
+      border-radius: 12px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-card h3 { font-size: 14px; opacity: 0.9; margin-bottom: 8px; }
+    .stat-card p { font-size: 32px; font-weight: bold; }
+
+    h2 { color: #555; margin: 25px 0 15px; font-size: 20px; }
+
+    .stats-list { display: grid; gap: 10px; }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .badge {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #667eea;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👨‍🎓 Students Manager</h1>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="list">📋 Student List</button>
+      <button class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+    </div>
+
+    <!-- TAB 1: Students List -->
+    <div id="list" class="tab-content active">
+      <a href="index.html" class="add-btn">➕ Add New Student</a>
+      <input type="text" id="searchBox" placeholder="🔍 Search by name, course, city...">
+      <div id="studentsList" class="students-grid">
+        <div class="loading">Loading students...</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Dashboard -->
+    <div id="dashboard" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Students</h3>
+          <p id="totalStudents">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Average Age</h3>
+          <p id="avgAge">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Courses</h3>
+          <p id="totalCourses">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Cities</h3>
+          <p id="totalCities">0</p>
+        </div>
+      </div>
+
+      <h2>📚 Students per Course</h2>
+      <div id="courseStats" class="stats-list"></div>
+
+      <h2>🏙️ Students per City</h2>
+      <div id="cityStats" class="stats-list"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    // 🔧 REPLACE WITH YOUR FIREBASE CONFIG (same as index.html)
+  const firebaseConfig = {
+  apiKey: "AIzaSyCuuUwd7TINIAwlLxg-OYjo7Q-1cBsbU5I",
+  authDomain: "codeshalatest.firebaseapp.com",
+  databaseURL: "https://codeshalatest-default-rtdb.firebaseio.com",
+  projectId: "codeshalatest",
+  storageBucket: "codeshalatest.firebasestorage.app",
+  messagingSenderId: "63047132068",
+  appId: "1:63047132068:web:b5eb1269a25ea412ed5731"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ============ TAB SWITCHING ============
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ============ LOAD ALL DATA ONCE ============
+    let allStudents = [];
+
+    async function loadData() {
+      const q = query(collection(db, "students"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      allStudents = [];
+      snapshot.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
+
+      renderList(allStudents);
+      renderDashboard(allStudents);
+    }
+
+    // ============ TAB 1: RENDER LIST ============
+    const studentsList = document.getElementById('studentsList');
+
+    function renderList(students) {
+      if (students.length === 0) {
+        studentsList.innerHTML = '<div class="empty-msg">📭 No students found. Add some!</div>';
+        return;
+      }
+
+      studentsList.innerHTML = students.map(s => `
+        <div class="student-card">
+          <h3>${s.name}</h3>
+          <p><b>Age:</b> ${s.age}</p>
+          <p><b>Course:</b> ${s.course}</p>
+          <p><b>Email:</b> ${s.email}</p>
+          <p><b>City:</b> ${s.city}</p>
+          <button class="delete-btn" data-id="${s.id}">🗑️ Delete</button>
+        </div>
+      `).join('');
+
+      // Delete handlers
+      studentsList.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm("Delete this student?")) return;
+          await deleteDoc(doc(db, "students", btn.dataset.id));
+          loadData();
+        });
+      });
+    }
+
+    // ============ SEARCH ============
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = allStudents.filter(s =>
+        s.name.toLowerCase().includes(term) ||
+        s.course.toLowerCase().includes(term) ||
+        s.city.toLowerCase().includes(term) ||
+        s.email.toLowerCase().includes(term)
+      );
+      renderList(filtered);
+    });
+
+    // ============ TAB 2: RENDER DASHBOARD ============
+    function renderDashboard(students) {
+      document.getElementById('totalStudents').textContent = students.length;
+
+      if (students.length === 0) {
+        document.getElementById('avgAge').textContent = '0';
+        document.getElementById('totalCourses').textContent = '0';
+        document.getElementById('totalCities').textContent = '0';
+        document.getElementById('courseStats').innerHTML = '<div class="empty-msg">No data</div>';
+        document.getElementById('cityStats').innerHTML = '<div class="empty-msg">No data</div>';
+        return;
+      }
+
+      const avg = students.reduce((sum, s) => sum + Number(s.age), 0) / students.length;
+      document.getElementById('avgAge').textContent = avg.toFixed(1);
+
+      const courses = {};
+      const cities = {};
+
+      students.forEach(s => {
+        courses[s.course] = (courses[s.course] || 0) + 1;
+        cities[s.city] = (cities[s.city] || 0) + 1;
+      });
+
+      document.getElementById('totalCourses').textContent = Object.keys(courses).length;
+      document.getElementById('totalCities').textContent = Object.keys(cities).length;
+
+      document.getElementById('courseStats').innerHTML = Object.entries(courses)
+        .sort((a, b) => b[1] - a[1])
+        .map(([c, n]) => `
+          <div class="stats-row">
+            <span>${c}</span>
+            <span class="badge">${n} students</span>
+          </div>
+        `).join('');
+
+      document.getElementById('cityStats').innerHTML = Object.entries(cities)
+        .sort((a, b) => b[1] - a[1])
+        .map(([c, n]) => `
+          <div class="stats-row">
+            <span>${c}</span>
+            <span class="badge">${n} students</span>
+          </div>
+        `).join('');
+    }
+
+    // ============ INITIAL LOAD ============
+    loadData();
+  </script>
+</body>
+</html>
