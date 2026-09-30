@@ -1,378 +1,1050 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Students & Dashboard</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Name — Developer</title>
+<meta name="description" content="Portfolio of Your Name, Full Stack Developer" />
 
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
+<style>
+/* ============ RESET ============ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    h1 { color: #333; margin-bottom: 20px; text-align: center; }
+:root {
+  --bg: #0e0e0e;
+  --bg-soft: #161616;
+  --bg-card: #1a1a1a;
+  --border: #262626;
+  --border-hover: #3a3a3a;
+  --text: #f5f5f5;
+  --text-dim: #a3a3a3;
+  --text-faint: #666;
+  --accent: #d4ff4f;
+  --accent-dim: rgba(212, 255, 79, 0.15);
+  --serif: 'Instrument Serif', serif;
+  --sans: 'Inter Tight', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      background: #f0f2f5;
-      padding: 6px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-    }
+[data-theme="light"] {
+  --bg: #fafaf7;
+  --bg-soft: #f2f2ee;
+  --bg-card: #ffffff;
+  --border: #e5e5e0;
+  --border-hover: #c9c9c2;
+  --text: #0e0e0e;
+  --text-dim: #555;
+  --text-faint: #999;
+  --accent: #6b7f00;
+  --accent-dim: rgba(107, 127, 0, 0.12);
+}
 
-    .tab-btn {
-      flex: 1;
-      padding: 12px;
-      background: transparent;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      color: #666;
-      transition: 0.3s;
-    }
+html { scroll-behavior: smooth; }
 
-    .tab-btn.active {
-      background: white;
-      color: #667eea;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.4s ease, color 0.4s ease;
+  font-weight: 400;
+}
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.3s; }
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 
-    /* Add Button */
-    .add-btn {
-      display: inline-block;
-      padding: 10px 18px;
-      background: #667eea;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      transition: 0.3s;
-    }
+::selection { background: var(--accent); color: #000; }
 
-    .add-btn:hover { background: #5568d3; transform: translateY(-2px); }
+/* ============ NAV ============ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  mix-blend-mode: difference;
+  transition: transform 0.4s ease;
+}
+.nav.hide { transform: translateY(-100%); }
 
-    /* Search */
-    #searchBox {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 15px;
-      margin-bottom: 20px;
-      transition: 0.3s;
-    }
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.nav-logo::before { content: '● '; color: var(--accent); }
 
-    #searchBox:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-    }
+.nav-menu {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-menu a {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: #fff;
+  position: relative;
+  padding-bottom: 2px;
+  transition: opacity 0.3s ease;
+}
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0; height: 1px;
+  background: currentColor;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-menu a:hover::after { width: 100%; }
 
-    /* Students Grid */
-    .students-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
+.nav-right { display: flex; align-items: center; gap: 24px; }
 
-    .student-card {
-      background: #f9fafb;
-      padding: 18px;
-      border-radius: 12px;
-      border-left: 4px solid #667eea;
-      transition: 0.3s;
-    }
+.theme-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  transition: all 0.3s ease;
+  font-size: 0.75rem;
+}
+.theme-btn:hover { background: rgba(255,255,255,0.1); transform: rotate(180deg); }
 
-    .student-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
+@media (max-width: 768px) {
+  .nav { padding: 18px 20px; }
+  .nav-menu { display: none; }
+}
 
-    .student-card h3 { color: #333; margin-bottom: 10px; }
-    .student-card p { color: #666; font-size: 14px; margin: 5px 0; }
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  padding: 140px 40px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
 
-    .delete-btn {
-      margin-top: 12px;
-      padding: 8px 14px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+.hero-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
 
-    .delete-btn:hover { background: #dc2626; }
+.hero-meta {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.1s forwards;
+}
+.hero-meta .dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
 
-    .empty-msg {
-      text-align: center;
-      color: #999;
-      padding: 40px;
-      font-size: 16px;
-    }
+.hero-title {
+  font-family: var(--sans);
+  font-size: clamp(2.8rem, 9vw, 9rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin-bottom: 48px;
+}
+.hero-title span {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.hero-title .line {
+  display: block;
+  overflow: hidden;
+}
+.hero-title .line > span {
+  display: inline-block;
+  animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform: translateY(100%);
+}
+.hero-title .line:nth-child(1) > span { animation-delay: 0.2s; }
+.hero-title .line:nth-child(2) > span { animation-delay: 0.35s; }
+.hero-title .line:nth-child(3) > span { animation-delay: 0.5s; }
 
-    /* Dashboard Stats */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 25px;
-    }
+@keyframes slideUp { to { transform: translateY(0); } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    .stat-card {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 22px;
-      border-radius: 12px;
-      text-align: center;
-      transition: 0.3s;
-    }
+.hero-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+  border-top: 1px solid var(--border);
+  padding-top: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.8s forwards;
+}
 
-    .stat-card:hover { transform: translateY(-4px); }
-    .stat-card h3 { font-size: 14px; opacity: 0.9; margin-bottom: 8px; }
-    .stat-card p { font-size: 32px; font-weight: bold; }
+.hero-desc {
+  font-size: 1.05rem;
+  color: var(--text-dim);
+  max-width: 440px;
+  line-height: 1.6;
+}
 
-    h2 { color: #555; margin: 25px 0 15px; font-size: 20px; }
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 
-    .stats-list { display: grid; gap: 10px; }
+.btn {
+  padding: 14px 26px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+}
 
-    .stats-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: #f9fafb;
-      border-radius: 8px;
-    }
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px var(--accent);
+}
+.btn-primary i { transition: transform 0.35s ease; }
+.btn-primary:hover i { transform: translate(3px, -3px); }
 
-    .badge {
-      background: #667eea;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-    }
+.btn-ghost {
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--border-hover); background: var(--bg-soft); }
 
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #667eea;
-      font-size: 16px;
-    }
-  </style>
+/* Hero side info */
+.hero-side {
+  position: fixed;
+  left: 40px;
+  bottom: 40px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.1em;
+  opacity: 0;
+  animation: fadeUp 1s ease 1s forwards;
+}
+
+.hero-side-r {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  opacity: 0;
+  animation: fadeUp 1s ease 1s forwards;
+}
+
+@media (max-width: 900px) {
+  .hero { padding: 120px 20px 60px; }
+  .hero-bottom { grid-template-columns: 1fr; gap: 32px; }
+  .hero-cta { justify-content: flex-start; }
+  .hero-side, .hero-side-r { display: none; }
+}
+
+/* ============ SECTION ============ */
+.section {
+  padding: 130px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.section-label::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--text-faint);
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  margin-bottom: 60px;
+  max-width: 800px;
+}
+.section-title em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .section { padding: 80px 20px; }
+}
+
+/* ============ ABOUT (BENTO) ============ */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.bento-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.bento-item:hover { border-color: var(--border-hover); }
+
+.bento-bio { grid-column: span 7; }
+.bento-photo { grid-column: span 5; padding: 0; overflow: hidden; min-height: 320px; }
+.bento-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.bento-photo:hover img { transform: scale(1.04); }
+
+.bento-stat { grid-column: span 3; text-align: left; }
+.bento-stat .num {
+  font-size: 2.8rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-family: var(--sans);
+}
+.bento-stat .lbl {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.bento-bio h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+.bento-bio h3 em {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+.bento-bio p {
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+.bento-bio .info-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.info-row div {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.info-row strong {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+@media (max-width: 900px) {
+  .bento-bio, .bento-photo, .bento-stat { grid-column: span 12; }
+  .bento-stat { grid-column: span 6; }
+  .bento-photo { min-height: 240px; }
+}
+
+/* ============ SKILLS (list style) ============ */
+.skills-list {
+  border-top: 1px solid var(--border);
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  align-items: center;
+  gap: 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.4s ease;
+  cursor: pointer;
+  position: relative;
+}
+.skill-row:hover { padding-left: 20px; }
+
+.skill-row .idx {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
+.skill-row .name {
+  font-size: clamp(1.3rem, 2.5vw, 1.9rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  transition: color 0.3s ease;
+}
+.skill-row:hover .name { color: var(--accent); }
+
+.skill-row .tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+.skill-row:hover .tag { border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 700px) {
+  .skill-row { grid-template-columns: 40px 1fr; gap: 16px; padding: 22px 0; }
+  .skill-row .tag { grid-column: 2; justify-self: start; margin-top: 8px; }
+}
+
+/* ============ PROJECTS ============ */
+.projects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.project:hover { transform: translateY(-6px); }
+
+.project-img {
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.project-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease;
+  filter: grayscale(0.5);
+}
+.project:hover .project-img img {
+  transform: scale(1.05);
+  filter: grayscale(0);
+}
+
+.project-img::after {
+  content: '\2197';
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 40px; height: 40px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.project:hover .project-img::after {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.project-meta h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.project-meta p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.project-meta .year {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 800px) {
+  .projects { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ============ CONTACT ============ */
+.contact-heading {
+  font-size: clamp(2.2rem, 8vw, 6.5rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  margin-bottom: 60px;
+}
+.contact-heading em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.contact-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.4s ease, color 0.3s ease;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.contact-link:hover { padding-left: 20px; color: var(--accent); }
+.contact-link .arrow {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--text-faint);
+  transition: transform 0.4s ease;
+}
+.contact-link:hover .arrow { transform: translate(4px, -4px); color: var(--accent); }
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.field input,
+.field textarea {
+  padding: 14px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  resize: none;
+}
+.field input:focus,
+.field textarea:focus { border-bottom-color: var(--accent); }
+
+.contact-form .btn { align-self: flex-start; margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ============ FOOTER ============ */
+.footer {
+  padding: 40px;
+  border-top: 1px solid var(--border);
+  margin-top: 80px;
+}
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+.footer-inner a { transition: color 0.3s ease; }
+.footer-inner a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 24px; }
+
+@media (max-width: 600px) {
+  .footer { padding: 32px 20px; }
+  .footer-inner { justify-content: center; text-align: center; }
+}
+
+/* ============ REVEAL ============ */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+.reveal.d4 { transition-delay: 0.32s; }
+
+/* ============ SCROLL TO TOP ============ */
+.scroll-top {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+}
+.scroll-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.scroll-top:hover { border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 600px) {
+  .scroll-top { bottom: 20px; right: 20px; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>👨‍🎓 Students Manager</h1>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="list">📋 Student List</button>
-      <button class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#top" class="nav-logo">yourname</a>
+  <ul class="nav-menu">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☀</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-meta">
+      <span class="dot"></span>
+      <span>Available for projects — 2025</span>
     </div>
 
-    <!-- TAB 1: Students List -->
-    <div id="list" class="tab-content active">
-      <a href="index.html" class="add-btn">➕ Add New Student</a>
-      <input type="text" id="searchBox" placeholder="🔍 Search by name, course, city...">
-      <div id="studentsList" class="students-grid">
-        <div class="loading">Loading students...</div>
+    <h1 class="hero-title">
+      <span class="line"><span>Building digital</span></span>
+      <span class="line"><span>products with</span></span>
+      <span class="line"><span><em>purpose.</em></span></span>
+    </h1>
+
+    <div class="hero-bottom">
+      <p class="hero-desc">
+        I'm <strong style="color:var(--text)">Your Name</strong> — a full stack developer
+        based in India. I design and build clean, fast, and thoughtfully-crafted
+        web experiences for founders and teams.
+      </p>
+
+      <div class="hero-cta">
+        <a href="#work" class="btn btn-primary">
+          View Work <span>↗</span>
+        </a>
+        <a href="#contact" class="btn btn-ghost">
+          Get in Touch
+        </a>
       </div>
-    </div>
-
-    <!-- TAB 2: Dashboard -->
-    <div id="dashboard" class="tab-content">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>Total Students</h3>
-          <p id="totalStudents">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>Average Age</h3>
-          <p id="avgAge">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>Total Courses</h3>
-          <p id="totalCourses">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>Total Cities</h3>
-          <p id="totalCities">0</p>
-        </div>
-      </div>
-
-      <h2>📚 Students per Course</h2>
-      <div id="courseStats" class="stats-list"></div>
-
-      <h2>🏙️ Students per City</h2>
-      <div id="cityStats" class="stats-list"></div>
     </div>
   </div>
+</section>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import {
-      getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<aside class="hero-side">SCROLL TO EXPLORE</aside>
+<aside class="hero-side-r">PORTFOLIO / 2025</aside>
 
-    // 🔧 REPLACE WITH YOUR FIREBASE CONFIG (same as index.html)
-  const firebaseConfig = {
-  apiKey: "AIzaSyCuuUwd7TINIAwlLxg-OYjo7Q-1cBsbU5I",
-  authDomain: "codeshalatest.firebaseapp.com",
-  databaseURL: "https://codeshalatest-default-rtdb.firebaseio.com",
-  projectId: "codeshalatest",
-  storageBucket: "codeshalatest.firebasestorage.app",
-  messagingSenderId: "63047132068",
-  appId: "1:63047132068:web:b5eb1269a25ea412ed5731"
-};
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="section-label reveal">01 — About</div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  <div class="bento">
+    <div class="bento-item bento-bio reveal">
+      <h3>Developer, designer, and <em>problem solver.</em></h3>
+      <p>
+        I've spent the last 5 years helping startups and businesses turn
+        ideas into polished, production-ready products. My approach is
+        simple: understand deeply, design thoughtfully, build carefully.
+      </p>
+      <p>
+        When I'm not coding, you'll find me exploring typography, reading
+        design blogs, or sipping chai while sketching interfaces.
+      </p>
 
-    // ============ TAB SWITCHING ============
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+      <div class="info-row">
+        <div><strong>Based in</strong>India</div>
+        <div><strong>Focus</strong>Full Stack</div>
+        <div><strong>Status</strong>Open to work</div>
+      </div>
+    </div>
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
+    <div class="bento-item bento-photo reveal d1">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" alt="Portrait" />
+    </div>
 
-    // ============ LOAD ALL DATA ONCE ============
-    let allStudents = [];
+    <div class="bento-item bento-stat reveal d1">
+      <div class="num">05+</div>
+      <div class="lbl">Years exp.</div>
+    </div>
+    <div class="bento-item bento-stat reveal d2">
+      <div class="num">48</div>
+      <div class="lbl">Projects shipped</div>
+    </div>
+    <div class="bento-item bento-stat reveal d3">
+      <div class="num">30</div>
+      <div class="lbl">Happy clients</div>
+    </div>
+    <div class="bento-item bento-stat reveal d4">
+      <div class="num">12</div>
+      <div class="lbl">Awards</div>
+    </div>
+  </div>
+</section>
 
-    async function loadData() {
-      const q = query(collection(db, "students"), orderBy("createdAt", "desc"));
-      const snapshot = await getDocs(q);
-      allStudents = [];
-      snapshot.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
+<!-- SKILLS -->
+<section class="section" id="skills">
+  <div class="section-label reveal">02 — Skills</div>
+  <h2 class="section-title reveal">Tools & technologies <em>I use daily.</em></h2>
 
-      renderList(allStudents);
-      renderDashboard(allStudents);
-    }
+  <div class="skills-list">
+    <div class="skill-row reveal">
+      <div class="idx">/01</div>
+      <div class="name">Frontend Development</div>
+      <div class="tag">React · Next.js · Vue</div>
+    </div>
+    <div class="skill-row reveal">
+      <div class="idx">/02</div>
+      <div class="name">Backend & APIs</div>
+      <div class="tag">Node.js · Python · Go</div>
+    </div>
+    <div class="skill-row reveal">
+      <div class="idx">/03</div>
+      <div class="name">UI / UX Design</div>
+      <div class="tag">Figma · Framer · Principle</div>
+    </div>
+    <div class="skill-row reveal">
+      <div class="idx">/04</div>
+      <div class="name">Databases</div>
+      <div class="tag">Postgres · MongoDB · Redis</div>
+    </div>
+    <div class="skill-row reveal">
+      <div class="idx">/05</div>
+      <div class="name">DevOps & Cloud</div>
+      <div class="tag">AWS · Docker · CI/CD</div>
+    </div>
+  </div>
+</section>
 
-    // ============ TAB 1: RENDER LIST ============
-    const studentsList = document.getElementById('studentsList');
+<!-- WORK -->
+<section class="section" id="work">
+  <div class="section-label reveal">03 — Selected Work</div>
+  <h2 class="section-title reveal">Projects I'm <em>proud of.</em></h2>
 
-    function renderList(students) {
-      if (students.length === 0) {
-        studentsList.innerHTML = '<div class="empty-msg">📭 No students found. Add some!</div>';
-        return;
-      }
-
-      studentsList.innerHTML = students.map(s => `
-        <div class="student-card">
-          <h3>${s.name}</h3>
-          <p><b>Age:</b> ${s.age}</p>
-          <p><b>Course:</b> ${s.course}</p>
-          <p><b>Email:</b> ${s.email}</p>
-          <p><b>City:</b> ${s.city}</p>
-          <button class="delete-btn" data-id="${s.id}">🗑️ Delete</button>
+  <div class="projects">
+    <a href="#" class="project reveal">
+      <div class="project-img">
+        <img src="https://images.unsplash.com/photo-1557821552-17105176677c?w=900&q=80" alt="NovaCommerce" />
+      </div>
+      <div class="project-meta">
+        <div>
+          <h3>NovaCommerce</h3>
+          <p>Full-stack e-commerce platform</p>
         </div>
-      `).join('');
+        <div class="year">2024</div>
+      </div>
+    </a>
 
-      // Delete handlers
-      studentsList.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (!confirm("Delete this student?")) return;
-          await deleteDoc(doc(db, "students", btn.dataset.id));
-          loadData();
-        });
-      });
+    <a href="#" class="project reveal d1">
+      <div class="project-img">
+        <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=900&q=80" alt="TaskFlow" />
+      </div>
+      <div class="project-meta">
+        <div>
+          <h3>TaskFlow</h3>
+          <p>Real-time team productivity tool</p>
+        </div>
+        <div class="year">2024</div>
+      </div>
+    </a>
+
+    <a href="#" class="project reveal d2">
+      <div class="project-img">
+        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=900&q=80" alt="VisionAI" />
+      </div>
+      <div class="project-meta">
+        <div>
+          <h3>VisionAI</h3>
+          <p>AI image analysis dashboard</p>
+        </div>
+        <div class="year">2023</div>
+      </div>
+    </a>
+
+    <a href="#" class="project reveal d3">
+      <div class="project-img">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80" alt="Analytics" />
+      </div>
+      <div class="project-meta">
+        <div>
+          <h3>PulseBoard</h3>
+          <p>Analytics platform for SaaS teams</p>
+        </div>
+        <div class="year">2023</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="section-label reveal">04 — Contact</div>
+  <h2 class="contact-heading reveal">Let's create<br />something <em>together.</em></h2>
+
+  <div class="contact-grid">
+    <div class="contact-links reveal">
+      <a href="mailto:you@example.com" class="contact-link">
+        <span>you@example.com</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="#" class="contact-link">
+        <span>LinkedIn</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="#" class="contact-link">
+        <span>GitHub</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="#" class="contact-link">
+        <span>Twitter / X</span>
+        <span class="arrow">↗</span>
+      </a>
+    </div>
+
+    <form class="contact-form reveal d1" id="contactForm">
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" name="name" placeholder="John Doe" required />
+      </div>
+      <div class="field">
+        <label>Your Email</label>
+        <input type="email" name="email" placeholder="john@example.com" required />
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea name="message" rows="4" placeholder="Tell me about your project..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        Send Message ↗
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2025 Your Name — All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#top">Back to top ↑</a>
+      <a href="#">Resume</a>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
+
+<script>
+/* ============ THEME ============ */
+const themeBtn = document.getElementById('themeBtn');
+const saved = localStorage.getItem('theme') || 'dark';
+document.documentElement.setAttribute('data-theme', saved);
+themeBtn.textContent = saved === 'dark' ? '☀' : '☾';
+
+themeBtn.addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀' : '☾';
+  localStorage.setItem('theme', next);
+});
+
+/* ============ NAV HIDE ON SCROLL DOWN ============ */
+const nav = document.getElementById('nav');
+let lastY = 0;
+
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y > lastY && y > 200) nav.classList.add('hide');
+  else nav.classList.remove('hide');
+  lastY = y;
+
+  document.getElementById('scrollTop').classList.toggle('show', y > 500);
+});
+
+/* ============ SCROLL TO TOP ============ */
+document.getElementById('scrollTop').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ REVEAL ON SCROLL ============ */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
     }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-    // ============ SEARCH ============
-    document.getElementById('searchBox').addEventListener('input', (e) => {
-      const term = e.target.value.toLowerCase();
-      const filtered = allStudents.filter(s =>
-        s.name.toLowerCase().includes(term) ||
-        s.course.toLowerCase().includes(term) ||
-        s.city.toLowerCase().includes(term) ||
-        s.email.toLowerCase().includes(term)
-      );
-      renderList(filtered);
-    });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // ============ TAB 2: RENDER DASHBOARD ============
-    function renderDashboard(students) {
-      document.getElementById('totalStudents').textContent = students.length;
+/* ============ FORM ============ */
+document.getElementById('contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const orig = btn.textContent;
+  btn.textContent = 'Message sent ✓';
+  btn.style.background = '#22c55e';
+  btn.style.color = '#fff';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    btn.style.color = '';
+    e.target.reset();
+  }, 2200);
+});
 
-      if (students.length === 0) {
-        document.getElementById('avgAge').textContent = '0';
-        document.getElementById('totalCourses').textContent = '0';
-        document.getElementById('totalCities').textContent = '0';
-        document.getElementById('courseStats').innerHTML = '<div class="empty-msg">No data</div>';
-        document.getElementById('cityStats').innerHTML = '<div class="empty-msg">No data</div>';
-        return;
-      }
-
-      const avg = students.reduce((sum, s) => sum + Number(s.age), 0) / students.length;
-      document.getElementById('avgAge').textContent = avg.toFixed(1);
-
-      const courses = {};
-      const cities = {};
-
-      students.forEach(s => {
-        courses[s.course] = (courses[s.course] || 0) + 1;
-        cities[s.city] = (cities[s.city] || 0) + 1;
-      });
-
-      document.getElementById('totalCourses').textContent = Object.keys(courses).length;
-      document.getElementById('totalCities').textContent = Object.keys(cities).length;
-
-      document.getElementById('courseStats').innerHTML = Object.entries(courses)
-        .sort((a, b) => b[1] - a[1])
-        .map(([c, n]) => `
-          <div class="stats-row">
-            <span>${c}</span>
-            <span class="badge">${n} students</span>
-          </div>
-        `).join('');
-
-      document.getElementById('cityStats').innerHTML = Object.entries(cities)
-        .sort((a, b) => b[1] - a[1])
-        .map(([c, n]) => `
-          <div class="stats-row">
-            <span>${c}</span>
-            <span class="badge">${n} students</span>
-          </div>
-        `).join('');
+/* ============ SMOOTH ANCHOR SCROLL ============ */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  });
+});
+</script>
 
-    // ============ INITIAL LOAD ============
-    loadData();
-  </script>
 </body>
 </html>
